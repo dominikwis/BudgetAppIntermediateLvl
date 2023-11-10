@@ -1,7 +1,6 @@
 ﻿using BudgetAppIntermediate.Entity;
 using Microsoft.EntityFrameworkCore;
 
-//public delegate void ItemAdded<in T>(T item);
 
 namespace BudgetAppIntermediate.Repositories
 {
@@ -10,13 +9,11 @@ namespace BudgetAppIntermediate.Repositories
     {
         private readonly DbContext _dbContext;
         private readonly DbSet<T> _dbSet;
-        //private readonly Action<T>? _itemAddedCallback;
 
-        public SqlRepository(DbContext dbContext/*, Action<T>? itemCallback = null*/)
+        public SqlRepository(DbContext dbContext)
         {
             _dbContext = dbContext;
             _dbSet = _dbContext.Set<T>();
-            //_itemAddedCallback = itemCallback;
         }
 
         public event EventHandler<T>? ItemAdded;
@@ -34,7 +31,6 @@ namespace BudgetAppIntermediate.Repositories
         public void Add(T item)
         {
             _dbSet.Add(item);
-            //_itemAddedCallback?.Invoke(item);
             ItemAdded.Invoke(this, item);
         }
 
@@ -46,6 +42,11 @@ namespace BudgetAppIntermediate.Repositories
         public void Save()
         {
             _dbContext.SaveChanges();
+        }
+
+        public void RemoveById(int id)
+        {
+            
         }
     }
 }
