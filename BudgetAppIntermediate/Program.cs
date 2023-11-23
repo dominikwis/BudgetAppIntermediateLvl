@@ -2,165 +2,461 @@
 using BudgetAppIntermediate.Entity;
 using BudgetAppIntermediate.Repositories;
 using BudgetAppIntermediate.Repositories.Extensions;
+using Microsoft.EntityFrameworkCore;
 
-string exit = null;
+bool exit = false;
+string optionMainMenu = null;
 string option = null;
-var billsRepository = new SqlRepository<BillBase>(new BudgetAppIntermediateContext());
 
-billsRepository.ItemAdded += BillRepositoryOnItemAdded;
+var oneTimeBills = new List<OneTimeBills>();
 
-Console.WriteLine("***************************");
+Console.WriteLine("===========================");
 Console.WriteLine("Welcome to The Budget App!");
-Console.WriteLine("***************************");
+Console.WriteLine("===========================\n");
 
-while (exit == null)
+while (optionMainMenu != "1" && optionMainMenu != "2")
 {
-    Console.WriteLine("<<< MENU >>>");
-    Console.WriteLine("[1] Add One Time Bills");
-    Console.WriteLine("[2] Add Regular Bills");
-    Console.WriteLine("[3] Add Unregular Bills");
-    Console.WriteLine("---");
-    Console.WriteLine("[4] Delete Special Bill");
-    Console.WriteLine("---");
-    Console.WriteLine("[5] Display Bills");
-    Console.WriteLine("[6] Display a Specific Bill");
-    Console.WriteLine("---");
-    Console.WriteLine("---");
-    Console.WriteLine("[q] if want to exit the app");
+    Console.WriteLine("Choose where do you want to save your data: ");
+    Console.WriteLine("[1] Save in the database");
+    Console.WriteLine("[2] Save in the text file");
+    Console.WriteLine("[q] Exit the app");
 
-    option = Console.ReadLine();
+    optionMainMenu = Console.ReadLine();
 
-    switch (option)
+    if (optionMainMenu == "q")
+    {
+        break;
+    }
+
+    switch (optionMainMenu)
     {
         case "1":
-            Console.WriteLine("[q] if want to exit the app");
+
+            var sqliteRepository = new SqliteRepository<OneTimeBills>(new BudgetAppIntermediateSqliteContext());
+            var auditLoggerSqlite = new AuditLogger<SqliteRepository<OneTimeBills>>(sqliteRepository);
+
+            sqliteRepository.ItemAdded += BillRepositoryOnItemAdded;
+            sqliteRepository.ItemRemoved += BillRepositoryItemRemoved;
+            sqliteRepository.AllItemRemoved += BillRepositoryAllItemRemoved;
+
+            while (true)
+            {
+                Console.WriteLine("<<< MENU >>>");
+                Console.WriteLine("[1] Add One Time Bills");
+                Console.WriteLine("[2] Add Regular Bills");
+                Console.WriteLine("[3] Add Unregular Bills");
+                Console.WriteLine("---");
+                Console.WriteLine("[4] Display Bills");
+                Console.WriteLine("---");
+                Console.WriteLine("[5] Delete Specific Bill by Id");
+                Console.WriteLine("[6] Delete All Bill");
+                Console.WriteLine("---");
+                Console.WriteLine("---");
+                Console.WriteLine("[q] if want to exit the app\n");
+
+                option = Console.ReadLine();
+
+                if (option == "q")
+                {
+                    break;
+                }
+
+                switch (option)
+                {
+                    case "1": //ADD ONE TIME BILLS //PRZETESTOWANE
+                        while (true)
+                        {
+                            OneTimeBills oneTimeBill = new OneTimeBills();
+
+                            Console.WriteLine("Give a name of the bill: ");
+                            oneTimeBill.Name = Console.ReadLine();
+
+                            Console.WriteLine("Give the price of the bill: ");
+                            string priceStr = Console.ReadLine();
+
+                            try
+                            {
+                                oneTimeBill.Price = decimal.Parse(priceStr);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Exteption caught: you have to provide a number, not a symbol or text.");
+                            }
+
+                            DateTime currentDate = DateTime.Now;
+                            oneTimeBill.Date = currentDate.ToString("dd-MM-yyyy");
+
+                            oneTimeBills.Add(oneTimeBill);
+
+                            while (true)
+                            {
+                                Console.WriteLine("Do you want to add another One Time Bill?");
+                                Console.WriteLine("\n[y] to add new bill");
+                                Console.WriteLine("[n] if want to come back to the menu\n");
+                                option = Console.ReadLine();
+
+                                if (option != "y" && option != "n")
+                                {
+                                    Console.WriteLine("You have to enter correct letter\n");
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (option == "n")
+                            {
+                                sqliteRepository.addBatch(oneTimeBills);
+                                oneTimeBills.Clear();
+                                break;
+                            }
+                        }
+
+
+                        break;
+
+                    case "2": // ADD REGULAR BILLS
+
+                        Console.WriteLine("\nStill in process, please use only One Time Bills in this version\n");
+
+                        break;
+
+                    case "3": // ADD UNREGULAR BILLS
+
+                        Console.WriteLine("\nStill in process, please use only One Time Bills in this version\n");
+
+                        break;
+
+                    case "4":  //DISPLAY BILLS // PRZETESTOWANE
+
+                        Console.WriteLine();
+                        try
+                        {
+                            IEnumerable<OneTimeBills> allBills = sqliteRepository.GetAll();
+
+                            Console.WriteLine("============================================================");
+
+                            foreach (var item in allBills)
+                            {
+                                Console.WriteLine($"Id: {item.Id} Name: {item.Name}, Price: {item.Price} pln, Date: {item.Date}");
+                            }
+
+                            Console.WriteLine("============================================================\n");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Exception caught: {e.Message}\n");
+                        }
+
+                        break;
+
+                    case "5": //DELETE SPECIFIC BILLS BY ID // PRZETESTOWANE
+
+                        Console.WriteLine();
+
+                        try
+                        {
+                            IEnumerable<OneTimeBills> allBillsId = sqliteRepository.GetAll();
+
+                            Console.WriteLine("============================================================");
+
+                            foreach (var item in allBillsId)
+                            {
+                                Console.WriteLine($"Id: {item.Id} Name: {item.Name}, Price: {item.Price} pln, Date: {item.Date}");
+                            }
+
+                            Console.WriteLine("============================================================");
+
+                            Console.WriteLine("\n['id number'] to delete the bill");
+                            Console.WriteLine("---");
+                            Console.WriteLine("[c] if want to come back to the menu\n");
+                            option = Console.ReadLine();
+
+                            if (option == "c")
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    int id = int.Parse(option);
+                                    sqliteRepository.RemoveById(id);
+                                }
+                                catch (Exception)
+                                {
+                                    Console.WriteLine($"Exception caught: you have to provide a number, not a symbol or text.");
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Exception caught: {e.Message}");
+                        }
+
+                        Console.WriteLine();
+
+                        break;
+
+                    case "6": //DELETE ALL BILLS // PRZETESTOWANE
+
+                        Console.WriteLine();
+                        Console.WriteLine("Are you sure to delete all bills?\n");
+                        Console.WriteLine("[y] yes\n");
+                        Console.WriteLine("[n] no\n");
+
+                        option = Console.ReadLine();
+
+                        if (option == "y")
+                        {
+                            try
+                            {
+                                sqliteRepository.RemoveAll();
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"\nException catched: {e.Message}");
+                            }
+                        }
+                        else if (option == "n")
+                        {
+                            break;
+                        }
+
+                        Console.WriteLine();
+
+                        break;
+
+                    default:
+                        Console.WriteLine("Try to use correct sign from MENU list");
+                        break;
+                }
+            }
 
             break;
 
-        case "2":
-            Console.WriteLine("[q] if want to exit the app");
+        case "2": 
+
+            var fileRepository = new FileRepository<OneTimeBills>();
+            var auditLogger = new AuditLogger<FileRepository<OneTimeBills>>(fileRepository);
+
+            fileRepository.ItemAdded += BillRepositoryOnItemAdded;
+            fileRepository.ItemRemoved += BillRepositoryItemRemoved;
+            fileRepository.AllItemRemoved += BillRepositoryAllItemRemoved;
+
+            while (true)
+            {
+                Console.WriteLine("<<< MENU >>>");
+                Console.WriteLine("[1] Add One Time Bills");
+                Console.WriteLine("[2] Add Regular Bills");
+                Console.WriteLine("[3] Add Unregular Bills");
+                Console.WriteLine("---");
+                Console.WriteLine("[4] Display Bills");
+                Console.WriteLine("---");
+                Console.WriteLine("[5] Delete Specific Bill by Id");
+                Console.WriteLine("[6] Delete All Bill");
+                Console.WriteLine("---");
+                Console.WriteLine("---");
+                Console.WriteLine("[q] if want to exit the app\n");
+
+
+                if (option == "q")
+                {
+                    break;
+                }
+
+                switch (option)
+                {
+                    case "1": //ADD ONE TIME BILLS //PRZETESTOWANE
+
+                        while (true)
+                        {
+                            OneTimeBills oneTimeBill = new OneTimeBills();
+
+                            Console.WriteLine("Give a name of the bill: ");
+                            oneTimeBill.Name = Console.ReadLine();
+
+                            Console.WriteLine("Give the price of the bill: ");
+                            string priceStr = Console.ReadLine();
+
+                            try
+                            {
+                                oneTimeBill.Price = decimal.Parse(priceStr);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Exteption caught: you have to provide a number, not a symbol or text.");
+                            }
+
+                            DateTime currentDate = DateTime.Now;
+                            oneTimeBill.Date = currentDate.ToString("dd-MM-yyyy");
+
+                            oneTimeBills.Add(oneTimeBill);
+
+                            while (true)
+                            {
+                                Console.WriteLine("Do you want to add another One Time Bill?");
+                                Console.WriteLine("\n[y] to add new bill");
+                                Console.WriteLine("[n] if want to come back to the menu\n");
+                                option = Console.ReadLine();
+
+                                if (option != "y" && option != "n")
+                                {
+                                    Console.WriteLine("You have to enter correct letter\n");
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (option == "n")
+                            {
+                                fileRepository.addBatch(oneTimeBills);
+                                oneTimeBills.Clear();
+                                break;
+                            }
+                        }
+
+                        break;
+
+                    case "2": // ADD REGULAR BILLS
+
+                        Console.WriteLine("\nStill in process, please use only One Time Bills in this version\n");
+
+                        break;
+
+                    case "3": // ADD UNREGULAR BILLS
+
+                        Console.WriteLine("\nStill in process, please use only One Time Bills in this version\n");
+
+                        break;
+
+                    case "4": //DISPLAY BILLS // PRZETESTOWANE
+
+                        Console.WriteLine();
+                        try
+                        {
+                            IEnumerable<OneTimeBills> allBills = fileRepository.GetAll();
+
+                            Console.WriteLine("============================================================");
+
+                            foreach (var item in allBills)
+                            {
+                                Console.WriteLine($" {item.Id} Name: {item.Name}, Price: {item.Price} pln, Date: {item.Date}");
+                            }
+
+                            Console.WriteLine("============================================================\n");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Exception caught: {e.Message}\n");
+                        }
+
+                        break;
+
+                    case "5": //DELETE SPECIFIC BILLS BY ID // PRZETESTOWANE
+
+                        Console.WriteLine();
+
+                        try
+                        {
+                            IEnumerable<OneTimeBills> allBillsId = fileRepository.GetAll();
+
+                            Console.WriteLine("============================================================");
+                            foreach (var item in allBillsId)
+                            {
+                                Console.WriteLine($"Id: {item.Id} Name: {item.Name}, Price: {item.Price} pln, Date: {item.Date}");
+                            }
+                            Console.WriteLine("============================================================");
+
+                            Console.WriteLine("\n['id number'] to delete the bill");
+                            Console.WriteLine("---");
+                            Console.WriteLine("[c] if want to come back to the menu\n");
+                            option = Console.ReadLine();
+
+                            if (option == "c")
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    int id = int.Parse(option);
+                                    fileRepository.RemoveById(id);
+                                }
+                                catch (Exception)
+                                {
+                                    Console.WriteLine($"Exception caught: you have to provide a number, not a symbol or text.");
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Exception caught: {e.Message}");
+                        }
+
+                        Console.WriteLine();
+
+                        break;
+
+                    case "6": //DELETE ALL BILLS // PRZETESTOWANE
+
+                        Console.WriteLine();
+                        Console.WriteLine("Are you sure to delete all bills?\n");
+                        Console.WriteLine("[y] yes\n");
+                        Console.WriteLine("[n] no\n");
+                        option = Console.ReadLine();
+                        if (option == "y")
+                        {
+                            try
+                            {
+                                fileRepository.RemoveAll();
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"\nException catched: {e.Message}");
+                            }
+                        }
+                        else if (option == "n")
+                        {
+                            break;
+                        }
+
+                        Console.WriteLine();
+
+                        break;
+
+                    default:
+                        Console.WriteLine("Try to use correct sign from MENU list");
+                        break;
+                }
+            }
+
             break;
 
-        case "3":
-            Console.WriteLine("[q] if want to exit the app");
-            break;
-            Console.WriteLine("[q] if want to exit the app");
-        case "4":
-            Console.WriteLine("[q] if want to exit the app");
-            break;
-            Console.WriteLine("[q] if want to exit the app");
-        case "5":
-            Console.WriteLine("[q] if want to exit the app");
-            break;
-            Console.WriteLine("[q] if want to exit the app");
-        case "6":
-            Console.WriteLine("[q] if want to exit the app");
+        case "q":
+            optionMainMenu = "q";
+
             break;
 
         default:
-            Console.WriteLine("Try to use correct sign from MENU list");
+            Console.WriteLine("Try to use correct sign from suggest options");
             break;
     }
-
-    
-    // **************************************************************************
-
-    Console.WriteLine("Write 'o' if you want to add One Time Bills or 'r' if Regular Bills.");
-    option = Console.ReadLine();
-
-    if (option == "o")
-    {
-        AddOneTimeBills(billsRepository);
-
-        Console.WriteLine("You added everthing correct!");
-        Console.WriteLine("Write 'r' if you want to add Regular Bills");
-        Console.WriteLine("write 'x' if you want to summarize your budget and exit the app");
-        option = Console.ReadLine();
-
-        if (option == "x")
-        {
-            WriteAllToConsole(billsRepository);
-            break;
-        }
-        else if (option == "r")
-        {
-            //AddRegularBills(billsRepository);
-
-            Console.WriteLine("You added everthing correct!");
-            Console.WriteLine("Your summarize result:");
-
-            WriteAllToConsole(billsRepository);
-            break;
-        }
-    }
-    else if (option == "r")
-    {
-        //AddRegularBills(billsRepository);
-
-        Console.WriteLine("You added everthing correct!");
-        Console.WriteLine("Write 'o' if you want to add One Time Bills");
-        Console.WriteLine("write 'x' if you want to summarize your budget and exit the app");
-        option = Console.ReadLine();
-
-        if (option == "x")
-        {
-            WriteAllToConsole(billsRepository);
-            break;
-        }
-        else if (option == "o")
-        {
-            AddOneTimeBills(billsRepository);
-
-            Console.WriteLine("You added everthing correct!");
-            Console.WriteLine("Your summarize result:");
-
-            WriteAllToConsole(billsRepository);
-            break;
-        }
-    }
-    else
-    {
-        Console.WriteLine("Wrong letter! Please repeat this action.");
-    }
-
-    //*******************************************************************************
-
 }
 
-static void BillRepositoryOnItemAdded(object? sender, BillBase b)
+static void BillRepositoryOnItemAdded(object? sender, BillEventArgs<OneTimeBills> e)
 {
-    Console.WriteLine($"bill added => {b.Name} from {sender?.GetType().Name}");
+    Console.WriteLine($"\nBill added => {e.Item.Name} with action {e.Action} from {sender?.GetType().Name}\n");
 }
-
-static void AddOneTimeBills(IRepository<BillBase> oneTimeBillsRepository)
-{
-    var oneTimeBills = new[]
+static void BillRepositoryItemRemoved(object? sender, BillEventArgs<OneTimeBills> e)
     {
-        new OneTimeBills { Name = "Shopping", Amount = 30, Date = "2023-08-30" },
-        new OneTimeBills { Name = "Restaurant", Amount = 120, Date = "2023-08-07" },
-        new OneTimeBills { Name = "Computer", Amount = 3000, Date = "2023-08-02" }
-    };
-
-    oneTimeBillsRepository.addBatch(oneTimeBills);
-}
-
-static void AddRegularBills(IRepository<BillBase> regularBillsRepository)
-{
-    var regularBills = new[]
-    {
-        new RegularBills { Name = "OC/AC", Amount = 30, FixedFrequency = 360 },
-        new RegularBills { Name = "Petrol", Amount = 120, FixedFrequency = 14 },
-        new RegularBills { Name = "Savings", Amount = 3000, FixedFrequency = 10 }
-    };
-
-    regularBillsRepository.addBatch(regularBills);
-}
-
-static void WriteAllToConsole(IReadRepository<IEntity> repository)
-{
-    var allBills = repository.GetAll();
-    foreach (var bill in allBills)
-    {
-        Console.WriteLine(bill);
+        Console.WriteLine($"\nBill removed {e.Item.Name} with action {e.Action} from {sender?.GetType().Name}\n");
     }
+static void BillRepositoryAllItemRemoved(object? sender, BillEventArgs<OneTimeBills> e)
+{
+    Console.WriteLine($"\n{e.Action}: All bills have been removed!\n");
 }

@@ -5,8 +5,6 @@ namespace BudgetAppIntermediate.Data
 {
     public class BudgetAppIntermediateContext : DbContext
     {
-        //Adding data resources/models for our class to work on
-
         public DbSet<BillBase> billBase => Set<BillBase>();
 
         //public DbSet<OneTimeBills> oneTimeBills => Set<OneTimeBills>();
