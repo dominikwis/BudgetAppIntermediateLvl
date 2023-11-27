@@ -4,7 +4,6 @@ using BudgetAppIntermediate.Repositories;
 using BudgetAppIntermediate.Repositories.Extensions;
 using Microsoft.EntityFrameworkCore;
 
-bool exit = false;
 string optionMainMenu = null;
 string option = null;
 
@@ -260,6 +259,7 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
                 Console.WriteLine("---");
                 Console.WriteLine("[q] if want to exit the app\n");
 
+                option = Console.ReadLine();
 
                 if (option == "q")
                 {
@@ -438,6 +438,7 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
             break;
 
         case "q":
+
             optionMainMenu = "q";
 
             break;
