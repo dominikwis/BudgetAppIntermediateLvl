@@ -15,7 +15,7 @@ namespace BudgetAppIntermediate.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.13");
 
-            modelBuilder.Entity("BudgetAppIntermediate.Entity.OneTimeBills", b =>
+            modelBuilder.Entity("BudgetAppIntermediate.Entity.OneTimeBill", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -33,7 +33,7 @@ namespace BudgetAppIntermediate.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("oneTimeBills");
+                    b.ToTable("OneTimeBills");
                 });
 #pragma warning restore 612, 618
         }

@@ -7,7 +7,7 @@ namespace BudgetAppIntermediate.Data
     {
         public DbSet<BillBase> billBase => Set<BillBase>();
 
-        //public DbSet<OneTimeBills> oneTimeBills => Set<OneTimeBills>();
+        //public DbSet<OneTimeBill> oneTimeBills => Set<OneTimeBill>();
 
         //public DbSet<RegularBills> regularBills => Set<RegularBills>();
 

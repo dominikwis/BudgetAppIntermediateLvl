@@ -1,6 +1,6 @@
 ﻿namespace BudgetAppIntermediate.Entity
 {
-    public class UnRegularBills : RegularBills
+    public class UnRegularBill : RegularBill
     {
         public int Frequency { get; set; }
 

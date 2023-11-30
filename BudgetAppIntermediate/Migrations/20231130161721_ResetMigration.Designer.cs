@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BudgetAppIntermediate.Migrations
 {
     [DbContext(typeof(BudgetAppIntermediateSqliteContext))]
-    [Migration("20231114053915_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20231130161721_ResetMigration")]
+    partial class ResetMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,7 +18,7 @@ namespace BudgetAppIntermediate.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.13");
 
-            modelBuilder.Entity("BudgetAppIntermediate.Entity.BillBase", b =>
+            modelBuilder.Entity("BudgetAppIntermediate.Entity.OneTimeBill", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,7 +36,7 @@ namespace BudgetAppIntermediate.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BillBases");
+                    b.ToTable("OneTimeBills");
                 });
 #pragma warning restore 612, 618
         }

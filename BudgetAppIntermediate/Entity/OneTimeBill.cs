@@ -1,6 +1,6 @@
 ﻿namespace BudgetAppIntermediate.Entity
 {
-    public  class OneTimeBills : BillBase
+    public  class OneTimeBill : BillBase
     {
         public string Date { get; set; }
 

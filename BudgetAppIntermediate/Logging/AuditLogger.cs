@@ -2,7 +2,7 @@
 using BudgetAppIntermediate.Repositories;
 
 public class AuditLogger<T>
-    where T: class, IEventRepository<OneTimeBills>
+    where T: class, IEventRepository<OneTimeBill>
 {
     private static string _logFilePath = "audits.txt";
 
@@ -13,7 +13,7 @@ public class AuditLogger<T>
         repository.AllItemRemoved += LogEventNonParameters;
     }
 
-    private void LogEvent(object? sender, BillEventArgs<OneTimeBills> e)
+    private void LogEvent(object? sender, BillEventArgs<OneTimeBill> e)
     {
         WriteLog($"{e.Action}-{e.Item.Name}");
     }

@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore;
 string optionMainMenu = null;
 string option = null;
 
-var oneTimeBills = new List<OneTimeBills>();
+var oneTimeBills = new List<OneTimeBill>();
+
+Console.WriteLine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 
 Console.WriteLine("===========================");
 Console.WriteLine("Welcome to The Budget App!");
@@ -31,8 +33,8 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
     {
         case "1":
 
-            var sqliteRepository = new SqliteRepository<OneTimeBills>(new BudgetAppIntermediateSqliteContext());
-            var auditLoggerSqlite = new AuditLogger<SqliteRepository<OneTimeBills>>(sqliteRepository);
+            var sqliteRepository = new SqliteRepository<OneTimeBill>(new BudgetAppIntermediateSqliteContext());
+            var auditLoggerSqlite = new AuditLogger<SqliteRepository<OneTimeBill>>(sqliteRepository);
 
             sqliteRepository.ItemAdded += BillRepositoryOnItemAdded;
             sqliteRepository.ItemRemoved += BillRepositoryItemRemoved;
@@ -55,7 +57,7 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
 
                 option = Console.ReadLine();
 
-                if (option == "q")
+                if(option == "q")
                 {
                     break;
                 }
@@ -65,7 +67,7 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
                     case "1": //ADD ONE TIME BILLS //PRZETESTOWANE
                         while (true)
                         {
-                            OneTimeBills oneTimeBill = new OneTimeBills();
+                            OneTimeBill oneTimeBill = new OneTimeBill();
 
                             Console.WriteLine("Give a name of the bill: ");
                             oneTimeBill.Name = Console.ReadLine();
@@ -132,7 +134,7 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
                         Console.WriteLine();
                         try
                         {
-                            IEnumerable<OneTimeBills> allBills = sqliteRepository.GetAll();
+                            IEnumerable<OneTimeBill> allBills = sqliteRepository.GetAll();
 
                             Console.WriteLine("============================================================");
 
@@ -156,7 +158,7 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
 
                         try
                         {
-                            IEnumerable<OneTimeBills> allBillsId = sqliteRepository.GetAll();
+                            IEnumerable<OneTimeBill> allBillsId = sqliteRepository.GetAll();
 
                             Console.WriteLine("============================================================");
 
@@ -237,8 +239,8 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
 
         case "2": 
 
-            var fileRepository = new FileRepository<OneTimeBills>();
-            var auditLogger = new AuditLogger<FileRepository<OneTimeBills>>(fileRepository);
+            var fileRepository = new FileRepository<OneTimeBill>();
+            var auditLogger = new AuditLogger<FileRepository<OneTimeBill>>(fileRepository);
 
             fileRepository.ItemAdded += BillRepositoryOnItemAdded;
             fileRepository.ItemRemoved += BillRepositoryItemRemoved;
@@ -272,7 +274,7 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
 
                         while (true)
                         {
-                            OneTimeBills oneTimeBill = new OneTimeBills();
+                            OneTimeBill oneTimeBill = new OneTimeBill();
 
                             Console.WriteLine("Give a name of the bill: ");
                             oneTimeBill.Name = Console.ReadLine();
@@ -338,7 +340,7 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
                         Console.WriteLine();
                         try
                         {
-                            IEnumerable<OneTimeBills> allBills = fileRepository.GetAll();
+                            IEnumerable<OneTimeBill> allBills = fileRepository.GetAll();
 
                             Console.WriteLine("============================================================");
 
@@ -362,7 +364,7 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
 
                         try
                         {
-                            IEnumerable<OneTimeBills> allBillsId = fileRepository.GetAll();
+                            IEnumerable<OneTimeBill> allBillsId = fileRepository.GetAll();
 
                             Console.WriteLine("============================================================");
                             foreach (var item in allBillsId)
@@ -449,15 +451,15 @@ while (optionMainMenu != "1" && optionMainMenu != "2")
     }
 }
 
-static void BillRepositoryOnItemAdded(object? sender, BillEventArgs<OneTimeBills> e)
+static void BillRepositoryOnItemAdded(object? sender, BillEventArgs<OneTimeBill> e)
 {
     Console.WriteLine($"\nBill added => {e.Item.Name} with action {e.Action} from {sender?.GetType().Name}\n");
 }
-static void BillRepositoryItemRemoved(object? sender, BillEventArgs<OneTimeBills> e)
+static void BillRepositoryItemRemoved(object? sender, BillEventArgs<OneTimeBill> e)
     {
         Console.WriteLine($"\nBill removed {e.Item.Name} with action {e.Action} from {sender?.GetType().Name}\n");
     }
-static void BillRepositoryAllItemRemoved(object? sender, BillEventArgs<OneTimeBills> e)
+static void BillRepositoryAllItemRemoved(object? sender, BillEventArgs<OneTimeBill> e)
 {
     Console.WriteLine($"\n{e.Action}: All bills have been removed!\n");
 }
